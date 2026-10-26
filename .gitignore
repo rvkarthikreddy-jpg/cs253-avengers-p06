@@ -47,7 +47,6 @@ build-*/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-Makefile
 install_manifest.txt
 compile_commands.json
 
@@ -66,3 +65,25 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+
+# Compiled binaries directory
+bin/
+
+# Protect against accidental large benchmark raw dumps (>50MB)
+*.dump

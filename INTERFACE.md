@@ -20,7 +20,7 @@ Both Structure A (Union by Rank + Path Compression) and Structure B (Naive, Rank
 
 ## 2. Common Interface Specification (`include/disjoint_set.hpp`)
 
-The interface operates on a fixed universe of $N$ elements indexed $\{0, 1, \dots, N-1\}$.
+The interface operates on a fixed universe of $N$ elements indexed $0, 1, \dots, N-1$.
 
 ### 2.1 Operations and Pre/Post-Conditions
 
@@ -44,7 +44,8 @@ The interface operates on a fixed universe of $N$ elements indexed $\{0, 1, \dot
 
 #### `component_size(int x) -> int`
 * **Precondition:** $0 \le x < N$.
-* **Postcondition:** Returns the exact number of elements currently residing in the equivalence class containing $x$. Always satisfies $1 \le \text{component\_size}(x) \le N$.
+* **Postcondition:** Returns the exact number of elements currently residing in the equivalence class containing $x$. Always satisfies:
+  $$1 \le \text{component\_size}(x) \le N$$
 
 #### `largest_component_size() -> int`
 * **Precondition:** Instance initialized.
@@ -75,7 +76,7 @@ $$\bigcup_{i=1}^k C_i = \{0, 1, \dots, N-1\} \quad \text{and} \quad C_i \cap C_j
 * **Why it Matters:**  
   If an operation corrupts pointers and an element is omitted or duplicated across subsets, the percolation cluster sizes and boundary checks become invalid.
 * **How the Test Checks It:**  
-  Loop over all indices $x \in [0, N-1]$. The call $\text{find}(x)$ must return a valid integer $r \in [0, N-1]$, and every $x$ must resolve to exactly one canonical root.
+  Loop over all indices $x \in [0, N-1]$. The call `find(x)` must return a valid integer $r \in [0, N-1]$, and every $x$ must resolve to exactly one canonical root.
 
 ---
 
@@ -84,11 +85,11 @@ $$\bigcup_{i=1}^k C_i = \{0, 1, \dots, N-1\} \quad \text{and} \quad C_i \cap C_j
 $$\text{Cycles}(\text{Parent Graph}) = \emptyset \quad \land \quad \forall r \in \text{Roots},\; \text{parent}[r] = r \quad \land \quad \forall x \in [0, N-1],\; \text{find}(\text{find}(x)) = \text{find}(x)$$
 
 * **In Simple Words:**  
-  Parent pointers must never form an endless loop (e.g., node $A \to B \to C \to A$). Every tree has exactly one top root node (the "boss"), which points to itself ($\text{parent}[r] = r$). Calling `find` on an already-found root returns itself immediately without extra steps.
+  Parent pointers must never form an endless loop (e.g., node $A \to B \to C \to A$). Every tree has exactly one top root node (the "boss"), which points to itself (`parent[r] = r`). Calling `find` on an already-found root returns itself immediately without extra steps.
 * **Why it Matters:**  
   If a cycle ever forms in the tree, any subsequent `find()` call will loop endlessly and crash the program with a stack or time overflow.
 * **How the Test Checks It:**  
-  Trace parent pointers from every node $x$ using cycle detection. The path must terminate at a self-looping root in $< N$ hops, and $\text{find}(\text{find}(x)) == \text{find}(x)$ must hold.
+  Trace parent pointers from every node $x$ using cycle detection. The path must terminate at a self-looping root in $< N$ hops, and `find(find(x)) == find(x)` must hold.
 
 ---
 
@@ -107,13 +108,14 @@ $$\text{connected}(x, y) \iff \text{find}(x) = \text{find}(y)$$
 * **Why it Matters:**  
   Connectivity must be mathematically consistent. It guarantees that checking connection order or querying intermediate sites never yields conflicting results.
 * **How the Test Checks It:**  
-  Verify that for sampled pairs $(x, y)$, $\text{connected}(x, y)$ returns the exact boolean value of $(\text{find}(x) == \text{find}(y))$, and assert symmetry for all queried pairs.
+  Verify that for sampled pairs $(x, y)$, `connected(x, y)` returns the exact boolean value of `(find(x) == find(y))`, and assert symmetry for all queried pairs.
 
 ---
 
 ### Invariant 4: Component Size Conservation and Monotonicity
 
 $$\sum_{r \in \text{Roots}} \text{component\_size}(r) = N \quad \land \quad \forall x \in [0, N-1],\; \text{component\_size}(x) = \text{component\_size}(\text{find}(x))$$
+
 $$\text{If } \text{unite}(x, y) \text{ merges disjoint } S_x, S_y \implies \text{component\_size}(\text{new\_root}) = |S_x| + |S_y|$$
 
 * **In Simple Words:**  
@@ -121,7 +123,7 @@ $$\text{If } \text{unite}(x, y) \text{ merges disjoint } S_x, S_y \implies \text
 * **Why it Matters:**  
   Accurate component sizes are required by the Newman–Ziff algorithm to measure cluster growth and identify the percolation transition point.
 * **How the Test Checks It:**  
-  Identify all distinct canonical roots across the universe, read $\text{component\_size}(r)$ for each root, and compute their sum. The total must equal $N$ after every operation.
+  Identify all distinct canonical roots across the universe, read `component_size(r)` for each root, and compute their sum. The total must equal $N$ after every operation.
 
 ---
 
@@ -134,7 +136,7 @@ $$\text{largest\_component\_size}() = \max_{0 \le i < N} \text{component\_size}(
 * **Why it Matters:**  
   In percolation theory, tracking the sudden jump in the size of the largest cluster is a primary observable. Maintaining this running maximum in $O(1)$ during `unite` satisfies the Structure A requirement directly.
 * **How the Test Checks It:**  
-  Compute the maximum of $\text{component\_size}(r)$ across all unique roots and assert that $\text{largest\_component\_size}()$ equals this maximum.
+  Compute the maximum of `component_size(r)` across all unique roots and assert that `largest_component_size()` equals this maximum.
 
 ---
 

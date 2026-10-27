@@ -1,14 +1,14 @@
 # Project 6: Site Percolation — Avengers
 
 ## 1. Team and Roles
-| Name                         | Roll no. | GitHub username | Role             | Module folder  | Derivation |
-|------------------------------|----------|-----------------|------------------|----------------|------------|
-| KUPPALA ABHIRAM SAI          | 250041024| To be added     | Structure A owner| `src/structA/` | D1         |
-| CHEEPATI DHEERAJ SREE RAM    | 250041012| To be added     | Structure B owner| `src/structB/` | D2         |
-| RONDA VENKATA KARTHIK REDDY  | 250041033| rvkarthik       | Architect        | `src/`         | D3         |
-| CHETKURI KRISHNA PRASAD      | 250041013| To be added     | Oracle owner     | `oracle/`      | D4         |
-| NARAGINTI LOHITH             | 250041028| To be added     | Adversary        | `adversary/`   | D5         |
-| BHOGARAJU M PRANAV ROHIT     | 250001014| To be added     | Analyst          | `bench/`       | D6         |
+| Name                         | Roll no. |      GitHub           |      Role        | Module folder       | Derivation |
+|------------------------------|----------|-----------------------|------------------|---------------------|------------|
+| KUPPALA ABHIRAM SAI          | 250041024| @mc250041024-ux       | Structure A owner| `src/structA/`      | D1         |
+| CHEEPATI DHEERAJ SREE RAM    | 250041012| @dheeraj2056          | Structure B owner| `src/structB/`      | D2         |
+| RONDA VENKATA KARTHIK REDDY  | 250041033| @rvkarthikreddy-jpg   | Architect        | `include/, app/`    | D3         |
+| CHETKURI KRISHNA PRASAD      | 250041013| @chetkurikrishna489   | Oracle owner     | `oracle/, tests/`   | D4         |
+| NARAGINTI LOHITH             | 250041028| @mc250041028-glitch   | Adversary        | `adversary/`        | D5         |
+| BHOGARAJU M PRANAV ROHIT     | 250001014| @pranavrohit          | Analyst          | `bench/, results/`  | D6         |
 ## 2. Summary
 
 This project estimates the site-percolation threshold of a square lattice using the Newman–Ziff algorithm and Disjoint Set Union (DSU). Structure A implements the optimized DSU approach, while Structure B provides alternative implementations for performance comparison. An independent oracle and differential tests will be used to verify correctness, with adversarial tests targeting difficult input sequences. Benchmark measurements will be used to compare performance and estimate the percolation threshold.

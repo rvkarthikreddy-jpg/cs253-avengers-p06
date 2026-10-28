@@ -5,7 +5,7 @@ Team Avengers — CS 253 / MA 253, Autumn 2026
 | Name                         | Roll no. |      GitHub           |      Role        | Module folder       | Derivation |
 |------------------------------|----------|-----------------------|------------------|---------------------|------------|
 | KUPPALA ABHIRAM SAI          | 250041024| @mc250041024-ux       | Structure A owner| `src/structA/`      | D1         |
-| CHEEPATI DHEERAJ SREE RAM    | 250041012| @dheeraj2056          | Structure B owner| `src/structB/`      | D2         |
+| CHEEPATI DHEERAJ SREE RAM    | 250041012| @dheeraj2056          | Structure B owner| `src/structB/`      | D2         |   
 | RONDA VENKATA KARTHIK REDDY  | 250041033| @rvkarthikreddy-jpg   | Architect        | `include/, app/`    | D3         |
 | CHETKURI KRISHNA PRASAD      | 250041013| @chetkurikrishna489   | Oracle owner     | `oracle/, tests/`   | D4         |
 | NARAGINTI LOHITH             | 250041028| @mc250041028-glitch   | Adversary        | `adversary/`        | D5         |

@@ -1,4 +1,5 @@
-# Project 6: Site Percolation — Avengers
+# Project 6: Percolation with Union find
+Team Avengers — CS 253 / MA 253, Autumn 2026
 
 ## 1. Team and Roles
 | Name                         | Roll no. |      GitHub           |      Role        | Module folder       | Derivation |

@@ -238,8 +238,10 @@ Total work ≈ Σ over L of T_L · n_L · τ(L) × 5 repeats. Because T_L ∝ L^
 
 ## 12. Machine and conditions
 
-- Processor: [ ]
-- L1 / L2 / L3 cache sizes: [ ]
+- Processor: 13th Gen Intel Core i7-1355U, 10 cores, 12 logical processors (2 performance + 8 efficiency cores)
+- L1d: 48 KB per performance core, 32 KB per efficiency core [confirm with Coreinfo or CPU-Z]
+- L2: 6656 KB total (1.25 MB per performance core, 2 MB per efficiency-core cluster)
+- L3: 12288 KB (12 MB), shared by all cores
 - Compiler and flags: [ ]
 - Every timing is the mean of at least 5 runs with the spread reported.
 - Every random seed behind a figure is recorded in `results/`.

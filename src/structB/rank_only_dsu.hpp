@@ -1,7 +1,7 @@
 #ifndef RANK_ONLY_DSU_HPP
 #define RANK_ONLY_DSU_HPP
 
-#include "../../include/disjoint_set.hpp"
+#include "disjoint_set.hpp"
 #include <vector>
 #include <stdexcept>
 #include <algorithm>

@@ -1,7 +1,7 @@
 #ifndef NAIVE_DSU_HPP
 #define NAIVE_DSU_HPP
 
-#include "../../include/disjoint_set.hpp"
+#include "disjoint_set.hpp"
 #include <vector>
 #include <stdexcept>
 #include <algorithm>

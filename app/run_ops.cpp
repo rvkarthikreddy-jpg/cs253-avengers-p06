@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
     std::string op;
     while (std::cin >> op) {
-        if (op == "INIT_DSU") {
+        if (op == "INIT_DSU" || op == "INIT") {
             int n;
             std::cin >> n;
             if (mode == Mode::STRUCTURE_A) {

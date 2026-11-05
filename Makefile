@@ -5,13 +5,17 @@ SRCS_A = src/structA/structA_dsu.cpp src/structA/percolation_system.cpp
 SRCS_B = src/structB/naive_dsu.cpp src/structB/rank_only_dsu.cpp src/structB/compression_only_dsu.cpp
 SRCS_ORACLE = oracle/bfs_oracle.cpp
 
-all: bin/app bin/run_ops
+all: bin/app bin/run_ops bin/extrapolate
 
 bin/app: app/main.cpp $(SRCS_A)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 bin/run_ops: app/run_ops.cpp $(SRCS_A) $(SRCS_B)
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+bin/extrapolate: app/extrapolate.cpp $(SRCS_A)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $^ -o $@
 

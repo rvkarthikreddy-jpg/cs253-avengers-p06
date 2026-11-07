@@ -42,3 +42,8 @@ bench: bin/bench_ops
 bin/adversary_gen: adversary/adversarial_generator.cpp
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $< -o $@
+# --- Cache Profiling Target (Analyst) ---
+profile-cache: bin/bench_ops
+	@mkdir -p results/raw
+	sudo perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
+		./bin/bench_ops 20260928 2>&1 | tee results/raw/cache_profile.txt

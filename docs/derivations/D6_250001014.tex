@@ -1,0 +1,84 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\title{\textbf{Derivation D6: Statistical Confidence Bounds and Finite-Size Scaling Extrapolation}}
+\author{\textbf{Bhogaraju M Pranav Rohit} (Roll No: 250001014) \\ Analyst --- Team Avengers (Project 06)}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\section{Statement}
+\textit{Derivation of 95\% confidence intervals ($\pm 1.96 \frac{s}{\sqrt{T}}$) and finite-size scaling extrapolation ($p_c(L) = p_c + a \cdot L^{-0.75}$).}
+
+\section{Part 1: Derivation of the 95\% Confidence Interval}
+
+Let $X_1, X_2, \dots, X_T$ denote the percolation thresholds measured across $T$ independent Newman--Ziff simulation sweeps on an $L \times L$ lattice using distinct pseudo-random seeds.
+\begin{itemize}
+    \item The samples $X_i$ are independent and identically distributed with population mean $\mu = \mathbb{E}[X]$ and finite variance $\sigma^2 = \text{Var}(X)$.
+    \item The sample mean and sample variance are:
+    \[
+    \bar{X}_T = \frac{1}{T}\sum_{i=1}^T X_i, \quad s^2 = \frac{1}{T-1}\sum_{i=1}^T (X_i - \bar{X}_T)^2
+    \]
+\end{itemize}
+
+By the Central Limit Theorem, as $T \ge 30$, the standardized distribution converges:
+\[
+Z = \frac{\bar{X}_T - \mu}{s / \sqrt{T}} \xrightarrow{d} \mathcal{N}(0, 1)
+\]
+For a two-sided $95\%$ confidence level, the significance parameter is $\alpha = 0.05$. We find the critical normal value $z_{1 - \alpha/2} = z_{0.975}$ such that:
+\[
+\Phi(z_{0.975}) - \Phi(-z_{0.975}) = 0.95 \implies z_{0.975} \approx 1.95996 \approx 1.96
+\]
+Substituting $Z$:
+\[
+\mathbb{P}\left(-1.96 \le \frac{\bar{X}_T - \mu}{s / \sqrt{T}} \le 1.96\right) = 0.95
+\]
+Rearranging terms around the true mean $\mu$:
+\[
+\mathbb{P}\left(\bar{X}_T - 1.96 \frac{s}{\sqrt{T}} \le \mu \le \bar{X}_T + 1.96 \frac{s}{\sqrt{T}}\right) = 0.95
+\]
+The confidence interval half-width is $\Delta = 1.96 \frac{s}{\sqrt{T}}$.
+
+\section{Part 2: Finite-Size Scaling Extrapolation}
+
+Continuous phase transitions in statistical mechanics follow finite-size scaling theory.
+Near the infinite-lattice percolation threshold $p_c(\infty)$, the correlation length $\xi$ diverges as a power law:
+\[
+\xi \propto |p - p_c|^{-\nu}
+\]
+where $\nu$ is the correlation-length universality exponent. For 2D square-lattice percolation, $\nu = 4/3$.
+
+On a finite lattice of linear dimension $L$, the maximum correlation length is truncated by the lattice boundary: $\xi \sim L$.
+Equating $|p_c(L) - p_c(\infty)|^{-\nu} \sim L$ and taking the inverse power:
+\[
+p_c(L) - p_c(\infty) \propto L^{-1/\nu}
+\]
+Substituting the 2D universality exponent $\nu = 4/3$:
+\[
+-\frac{1}{\nu} = -\frac{1}{4/3} = -\frac{3}{4} = -0.75
+\]
+\[
+p_c(L) = p_c(\infty) + a \cdot L^{-0.75}
+\]
+where $a$ is an amplitude constant.
+Plotting empirical means $\bar{p}_c(L)$ against the transformed coordinate $x = L^{-0.75}$ yields a linear relationship. In the thermodynamic limit $L \to \infty$, $x \to 0$. Linear regression to the y-intercept extracts $p_c(\infty) \approx 0.592746$.
+
+\section{Code Mapping}
+\begin{itemize}
+    \item \textbf{C++ Scaling Driver:} \texttt{app/extrapolate.cpp} computes $\bar{p}_c(L)$, $s$, and $\pm 1.96 \frac{s}{\sqrt{T}}$.
+    \item \textbf{Figure Generation Pipeline:} \texttt{bench/plot\_results.py} computes the linear regression of $\bar{p}_c(L)$ against $L^{-0.75}$ to extrapolate $p_c(\infty)$.
+\end{itemize}
+
+\section{References}
+\begin{enumerate}
+    \item Stauffer, D., \& Aharony, A. (2018). \textit{Introduction to Percolation Theory} (2nd ed., Chapter 4: Finite-Size Scaling). Taylor \& Francis.
+    \item Newman, M. E. J., \& Ziff, R. M. (2000). Efficient Monte Carlo algorithm and high-precision results for percolation. \textit{Physical Review Letters}, 85(19), 4104--4107.
+\end{enumerate}
+
+\end{document}

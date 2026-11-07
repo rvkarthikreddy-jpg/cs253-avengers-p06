@@ -36,3 +36,9 @@ bin/bench_ops: bench/bench_ops.cpp $(SRCS_A) $(SRCS_B)
 
 bench: bin/bench_ops
 	./bin/bench_ops 20260928
+
+# --- Cache Profiling Target (Analyst) ---
+profile-cache: bin/bench_ops
+	@mkdir -p results/raw
+	sudo perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
+		./bin/bench_ops 20260928 2>&1 | tee results/raw/cache_profile.txt

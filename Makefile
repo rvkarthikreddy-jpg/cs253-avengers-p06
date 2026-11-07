@@ -34,6 +34,7 @@ bin/bench_ops: bench/bench_ops.cpp $(SRCS_A) $(SRCS_B)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+
 bench: bin/bench_ops
 	./bin/bench_ops 20260928
 

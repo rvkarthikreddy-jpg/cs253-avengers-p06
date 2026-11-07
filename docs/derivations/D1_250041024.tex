@@ -1,0 +1,95 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{\textbf{Derivation D1: Tree Size Lower Bound and Logarithmic Height Bound Under Union-by-Rank}}
+\author{\textbf{Kuppala Abhiram Sai} (Roll No: 250041024) \\ Structure A Owner --- Team Avengers (Project 06)}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\section{Statement}
+\textit{Under union by rank, a root of rank $r$ has at least $2^r$ nodes, so tree height is at most $\lfloor \log_2 n \rfloor$.}
+
+\section{Definitions and Mathematical Model}
+Let $T$ be a disjoint-set rooted directed tree on universe $V$ of size $n$:
+\begin{itemize}
+    \item \textbf{Rank Function:} Each node $x \in V$ possesses integer attribute $\text{rank}(x)$. Initially $\text{rank}(x) = 0$.
+    \item \textbf{Union-by-Rank Protocol:} For roots $r_u \neq r_v$:
+    \begin{itemize}
+        \item If $\text{rank}(r_u) < \text{rank}(r_v)$, link $r_u \to r_v$; $\text{rank}(r_v)$ remains unchanged.
+        \item If $\text{rank}(r_u) > \text{rank}(r_v)$, link $r_v \to r_u$; $\text{rank}(r_u)$ remains unchanged.
+        \item If $\text{rank}(r_u) = \text{rank}(r_v)$, arbitrarily link $r_v \to r_u$, setting $\text{rank}(r_u) \leftarrow \text{rank}(r_u) + 1$.
+    \end{itemize}
+    \item $\text{size}(T)$ denotes the number of nodes in tree $T$. $\text{height}(T)$ is the maximum edge depth from root to leaf.
+\end{itemize}
+
+\section{Proof and Derivation}
+
+\begin{lemma}
+For any node $x$ in a disjoint-set forest under union-by-rank, $\text{height}(x) \le \text{rank}(x)$.
+\end{lemma}
+\begin{proof}
+By induction on the number of union operations:
+\begin{itemize}
+    \item \textbf{Base Case:} Singletons have $\text{rank} = 0$ and $\text{height} = 0$. $\text{height} \le \text{rank}$ holds.
+    \item \textbf{Inductive Step:} Let trees $T_1$ and $T_2$ with roots $r_1, r_2$ be united.
+    \begin{itemize}
+        \item If $\text{rank}(r_1) > \text{rank}(r_2)$, $r_2 \to r_1$. New height is $\max(\text{height}(T_1), \text{height}(T_2) + 1) \le \max(\text{rank}(r_1), \text{rank}(r_2) + 1) \le \text{rank}(r_1)$. Rank does not change.
+        \item If $\text{rank}(r_1) = \text{rank}(r_2) = r$, $r_2 \to r_1$. New height is $\max(\text{height}(T_1), \text{height}(T_2) + 1) \le r + 1$. The new rank is $\text{rank}(r_1) = r + 1$. Thus $\text{height} \le \text{rank}$.
+    \end{itemize}
+\end{itemize}
+\end{proof}
+
+\begin{theorem}
+A root of rank $r$ has at least $2^r$ nodes: $\text{size}(T_r) \ge 2^r$.
+\end{theorem}
+\begin{proof}
+We proceed by strong induction on the rank $r$:
+\begin{itemize}
+    \item \textbf{Base Case ($r=0$):} A tree of rank $0$ contains at least $1$ node. Since $2^0 = 1$, the base case holds.
+    \item \textbf{Inductive Hypothesis:} Assume for all $k \le r$, any root of rank $k$ satisfies $\text{size}(T_k) \ge 2^k$.
+    \item \textbf{Inductive Step ($r \to r+1$):} A root attains rank $r+1$ only when two disjoint trees $T_A$ and $T_B$ whose roots both have rank $r$ are merged.
+    By hypothesis, $\text{size}(T_A) \ge 2^r$ and $\text{size}(T_B) \ge 2^r$.
+    Because $T_A$ and $T_B$ are disjoint components:
+    \[
+    \text{size}(T_{\text{new}}) = \text{size}(T_A) + \text{size}(T_B) \ge 2^r + 2^r = 2 \cdot 2^r = 2^{r+1}
+    \]
+    Thus, by induction, any root of rank $r$ has $\text{size}(T) \ge 2^r$.
+\end{itemize}
+\end{proof}
+
+\begin{theorem}
+For any disjoint-set tree with $n$ nodes under union-by-rank, $\text{height}(T) \le \lfloor \log_2 n \rfloor$.
+\end{theorem}
+\begin{proof}
+Let $T$ contain $n$ nodes and have root rank $r$. By Theorem 1:
+\[
+n = \text{size}(T) \ge 2^r \implies \log_2 n \ge r
+\]
+Because $r$ is an integer: $r \le \lfloor \log_2 n \rfloor$. Combining with Lemma 1:
+\[
+\text{height}(T) \le r \le \lfloor \log_2 n \rfloor
+\]
+\end{proof}
+
+\section{Code Mapping}
+\begin{itemize}
+    \item \textbf{File:} \texttt{src/structA/structA\_dsu.cpp}
+    \item \textbf{Function:} \texttt{bool StructADSU::unite(int u, int v)}
+    \item \textbf{Implementation:} Compares \texttt{rank\[root\_u]} and \texttt{rank\[root\_v]}, linking smaller under larger and incrementing on equality to guarantee tree depth $\le \lfloor \log_2 n \rfloor$.
+\end{itemize}
+
+\section{References}
+\begin{enumerate}
+    \item Cormen, T. H., Leiserson, C. E., Rivest, R. L., \& Stein, C. (2022). \textit{Introduction to Algorithms} (4th ed., Section 19.3). MIT Press.
+    \item Tarjan, R. E. (1975). Efficiency of a good but not linear set union algorithm. \textit{J. ACM}, 22(2), 215--225.
+\end{enumerate}
+
+\end{document}

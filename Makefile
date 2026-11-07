@@ -34,9 +34,14 @@ bin/bench_ops: bench/bench_ops.cpp $(SRCS_A) $(SRCS_B)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+
 bench: bin/bench_ops
 	./bin/bench_ops 20260928
 
+# --- Adversary Target ---
+bin/adversary_gen: adversary/adversarial_generator.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $< -o $@
 # --- Cache Profiling Target (Analyst) ---
 profile-cache: bin/bench_ops
 	@mkdir -p results/raw

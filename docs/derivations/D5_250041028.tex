@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+
+\title{\textbf{Derivation D5: Worst-Case Sequences for Disjoint Set Union}}
+\author{\textbf{Naraginti Lohith} (Roll No: 250041028) \\ Role: Adversary \\ Course: CS 253 / MA 253}
+\date{November 2026}
+
+\newtheorem{theorem}{Theorem}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Construct an explicit union sequence that forces $\Theta(N^2)$ total traversal work for naive linking without balancing or compression. Furthermore, construct a sequence that forces a rank-only tree to achieve a height of exactly $\lfloor \log_2 N \rfloor$. Prove both constructions.
+
+\section{Proof 1: Quadratic Slowdown on Naive Linking}
+\begin{theorem}
+For a disjoint set structure of size $N$ using naive root linking ($\text{parent}[r_x] = r_y$) without rank heuristics or path compression, an adversary can construct a sequence of $N-1$ unions and $N$ queries requiring $\Theta(N^2)$ edge traversals.
+\end{theorem}
+
+\begin{proof}
+Let the universe of elements be $V = \{0, 1, \dots, N-1\}$. Initially, $\text{parent}[i] = i$ for all $i \in V$.
+Consider the ordered union sequence:
+\[
+\sigma_u = \langle \text{unite}(0, 1), \text{unite}(1, 2), \dots, \text{unite}(N-2, N-1) \rangle
+\]
+At step $i$ ($0 \le i \le N-2$), we link root $i$ directly under root $i+1$. Inductively, this constructs a single degenerate linear chain:
+\[
+0 \to 1 \to 2 \to \dots \to N-1
+\]
+where node $N-1$ is the canonical root, and the depth of node $0$ is exactly $d(0) = N-1$.
+
+Next, we issue $M = N$ find queries on the deepest leaf node:
+\[
+\sigma_f = \langle \text{find}(0), \text{find}(0), \dots, \text{find}(0) \rangle
+\]
+Since naive linking performs no path compression, every traversal of $\text{find}(0)$ follows the entire chain from $0$ up to $N-1$, traversing exactly $N-1$ edges.
+
+The cumulative number of edge traversals across the entire sequence is:
+\[
+T(N) = \sum_{i=1}^{N-1} i + \sum_{j=1}^N (N-1) = \frac{(N-1)N}{2} + N(N-1) = \frac{3}{2}N^2 - \frac{3}{2}N = \Theta(N^2)
+\]
+Thus, the total cost is $\Theta(N^2)$. \qedhere
+\end{proof}
+
+\section{Proof 2: Binomial Tree Depth Maximization on Union-by-Rank}
+\begin{theorem}
+For a disjoint set structure using union by rank without path compression, an adversary can construct an operation sequence on $N = 2^k$ elements such that the resulting tree has height exactly $k = \log_2 N$.
+\end{theorem}
+
+\begin{proof}
+We construct a Binomial Tree $B_k$ of order $k$ inductively:
+\begin{itemize}
+    \item \textbf{Base Case ($k=0$):} $B_0$ consists of a single node with $\text{rank} = 0$, $\text{height} = 0$, and size $2^0 = 1$.
+    \item \textbf{Inductive Step:} Assume $B_{k-1}$ has $\text{rank} = k-1$, $\text{height} = k-1$, and size $2^{k-1}$. When two disjoint instances of $B_{k-1}$ are merged, their roots have identical rank $k-1$.
+\end{itemize}
+Under union by rank, when two roots of equal rank $r$ are united, one root is attached as a child of the other, and the rank of the surviving root increments by exactly 1:
+\[
+\text{rank}_{\text{new}} = (k-1) + 1 = k
+\]
+The height of the new tree is:
+\[
+\text{height}_{\text{new}} = \max(\text{height}(B_{k-1}), \text{height}(B_{k-1}) + 1) = (k-1) + 1 = k
+\]
+The total number of elements doubles: $|V| = 2^{k-1} + 2^{k-1} = 2^k = N$.
+Taking the logarithm:
+\[
+\text{height} = k = \log_2 N
+\]
+This reaches the theoretical upper bound $\lfloor \log_2 N \rfloor$ established in Derivation D1. \qedhere
+\end{proof}
+
+\section{Code Integration}
+These adversarial constructions are implemented in \texttt{adversary/adversarial\_generator.cpp} via flags \texttt{--linear <N>} and \texttt{--binomial <k>}, verified against \texttt{bin/run\_ops}.
+\end{document}

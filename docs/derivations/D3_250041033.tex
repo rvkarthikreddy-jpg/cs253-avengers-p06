@@ -1,0 +1,88 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{counterexample}{Counterexample}
+
+\title{\textbf{Derivation D3: Analytical Proof of Virtual-Node Backwash and Correctness of Dual-DSU Isolation}}
+\author{\textbf{Ronda Venkata Karthik Reddy} (Roll No: 250041033) \\ Architect --- Team Avengers (Project 06)}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\section{Statement}
+\textit{With one structure holding virtual top and bottom nodes, the full-site query goes wrong after percolation. Prove it by example, and prove the two-structure fix correct.}
+
+\section{Definitions and Mathematical Model}
+Let $G = (V, E)$ represent an $L \times L$ site percolation lattice where sites are indexed by coordinates $(r, c)$ with $0 \le r, c < L$. Let $N = L^2$.
+\begin{itemize}
+    \item \textbf{Fullness:} An open site $(r, c)$ is \textit{full} if and only if there exists a contiguous path of adjacent open sites connecting $(r, c)$ to some site $(0, c')$ in row $0$.
+    \item \textbf{Percolation:} The lattice percolates if and only if there exists an open path connecting some site in row $0$ to some site in row $L-1$.
+    \item \textbf{Virtual Nodes:} $V_{\text{top}}$ is linked to all open sites in row $0$. $V_{\text{bottom}}$ is linked to all open sites in row $L-1$.
+\end{itemize}
+
+\section{Proof of Single-DSU Failure (The Backwash Bug)}
+\begin{theorem}
+In a single DSU holding both $V_{\text{top}}$ and $V_{\text{bottom}}$, once the lattice percolates, querying fullness produces false positives for disconnected open sites in the bottom row.
+\end{theorem}
+\begin{proof}
+Let $\mathcal{S}$ denote a single disjoint set universe over $V \cup \{V_{\text{top}}, V_{\text{bottom}}\}$.
+Suppose the system percolates via an open path $\Pi = \langle s_0, \dots, s_k \rangle$ where $s_0 = (0, c_{\text{top}})$ and $s_k = (L-1, c_{\text{bot}})$.
+\begin{enumerate}
+    \item Because $s_0$ is in row $0$, $\mathcal{S}.\text{unite}(s_0, V_{\text{top}})$ is executed.
+    \item Because $s_k$ is in row $L-1$, $\mathcal{S}.\text{unite}(s_k, V_{\text{bottom}})$ is executed.
+    \item Since $\Pi$ is pairwise connected, $\mathcal{S}.\text{connected}(V_{\text{top}}, V_{\text{bottom}}) = \text{true} \implies \text{find}(V_{\text{top}}) = \text{find}(V_{\text{bottom}})$.
+\end{enumerate}
+
+\begin{counterexample}
+Consider an $L=3$ lattice:
+\begin{itemize}
+    \item Open column 0: $(0,0), (1,0), (2,0)$ are open. The system percolates.
+    \item Now open an isolated bottom-row site $u = (2, 2)$ whose neighbors $(1,2)$ and $(2,1)$ are closed.
+\end{itemize}
+Ground Truth: No open path connects $u$ to row $0$. Fullness must return $\text{false}$.\\
+Single DSU evaluation:
+\begin{enumerate}
+    \item Because $u$ lies in row $2 = L-1$, the algorithm executes $\mathcal{S}.\text{unite}(u, V_{\text{bottom}})$.
+    \item Evaluating fullness queries $\mathcal{S}.\text{connected}(u, V_{\text{top}})$.
+    \item By transitivity: $u \sim V_{\text{bottom}}$ and $V_{\text{bottom}} \sim V_{\text{top}} \implies u \sim V_{\text{top}}$.
+\end{enumerate}
+Therefore, $\mathcal{S}.\text{connected}(u, V_{\text{top}}) = \text{true}$, returning an invalid false positive.
+\end{counterexample}
+\end{proof}
+
+\section{Proof of Correctness for Dual-DSU Isolation}
+\begin{theorem}
+Maintaining two independent disjoint-set structures:
+\begin{enumerate}
+    \item $\mathcal{D}_{\text{perc}}$ of size $N + 2$ containing $V_{\text{top}}$ and $V_{\text{bottom}}$ (used exclusively for percolation queries).
+    \item $\mathcal{D}_{\text{full}}$ of size $N + 1$ containing $V_{\text{top}}$ only (used exclusively for site fullness).
+\end{enumerate}
+guarantees that $\mathcal{D}_{\text{full}}.\text{connected}(u, V_{\text{top}}) = \text{true} \iff u \text{ is physically full}$.
+\end{theorem}
+\begin{proof}
+Let $u$ be an open site in $G$:
+\begin{itemize}
+    \item \textbf{Soundness (No False Positives):} In $\mathcal{D}_{\text{full}}$, edges exist strictly between adjacent open lattice sites, and between open sites in row $0$ and $V_{\text{top}}$. The sink $V_{\text{bottom}}$ is absent. A path from $u$ to $V_{\text{top}}$ exists in $\mathcal{D}_{\text{full}}$ if and only if there is a sequence of adjacent open sites from $u$ reaching some $(0, c')$. Hence, backwash paths cannot form.
+    \item \textbf{Completeness (No False Negatives):} Every physical union between adjacent open sites is mirrored in both $\mathcal{D}_{\text{perc}}$ and $\mathcal{D}_{\text{full}}$. If an open path exists from $u$ to row $0$, the exact merge sequence was performed in $\mathcal{D}_{\text{full}}$, ensuring $\mathcal{D}_{\text{full}}.\text{connected}(u, V_{\text{top}}) = \text{true}$.
+\end{itemize}
+Thus, dual-DSU isolation is necessary and sufficient.
+\end{proof}
+
+\section{Code Mapping}
+\begin{itemize}
+    \item \textbf{File:} \texttt{src/structA/percolation\_system.cpp}
+    \item \textbf{Variables:} \texttt{dsu\_perc\_} (size $N+2$) and \texttt{dsu\_full\_} (size $N+1$).
+    \item \textbf{Functions:} \texttt{PercolationSystem::percolates()} and \texttt{PercolationSystem::is\_full(int r, int c)}.
+\end{itemize}
+
+\section{References}
+\begin{enumerate}
+    \item Sedgewick, R., \& Wayne, K. (2011). \textit{Algorithms} (4th ed., Section 1.5). Addison-Wesley.
+\end{enumerate}
+
+\end{document}

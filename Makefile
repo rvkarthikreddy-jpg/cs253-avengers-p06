@@ -36,3 +36,8 @@ bin/bench_ops: bench/bench_ops.cpp $(SRCS_A) $(SRCS_B)
 
 bench: bin/bench_ops
 	./bin/bench_ops 20260928
+
+# --- Adversary Target ---
+bin/adversary_gen: adversary/adversarial_generator.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $< -o $@

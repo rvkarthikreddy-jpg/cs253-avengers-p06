@@ -5,7 +5,7 @@ SRCS_A = src/structA/structA_dsu.cpp src/structA/percolation_system.cpp
 SRCS_B = src/structB/naive_dsu.cpp src/structB/rank_only_dsu.cpp src/structB/compression_only_dsu.cpp
 SRCS_ORACLE = oracle/bfs_oracle.cpp
 
-all: bin/app bin/run_ops bin/extrapolate
+all: bin/app bin/run_ops bin/extrapolate bin/differential_test bin/bench_ops bin/adversary_gen
 
 bin/app: app/main.cpp $(SRCS_A)
 	@mkdir -p bin
@@ -24,7 +24,7 @@ bin/differential_test: tests/differential_test.cpp $(SRCS_A) $(SRCS_B) $(SRCS_OR
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 test: bin/differential_test
-	./bin/differential_test --seed 20260928 --ops 100000
+	./bin/differential_test --seed 20260928 --ops 1000000
 
 clean:
 	rm -rf bin/ *.o *.exe
@@ -34,7 +34,6 @@ bin/bench_ops: bench/bench_ops.cpp $(SRCS_A) $(SRCS_B)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-
 bench: bin/bench_ops
 	./bin/bench_ops 20260928
 
@@ -42,3 +41,11 @@ bench: bin/bench_ops
 bin/adversary_gen: adversary/adversarial_generator.cpp
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $< -o $@
+
+# --- Cache Profiling Target (Analyst) ---
+profile-cache: bin/bench_ops
+	@mkdir -p results/raw
+	sudo perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
+		./bin/bench_ops 20260928 2>&1 | tee results/raw/cache_profile.txt
+
+.PHONY: all test bench profile-cache clean

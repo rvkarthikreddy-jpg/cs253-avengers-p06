@@ -1,0 +1,27 @@
+>>> Running Micro-Benchmark Suite with Operation Counters (Seed: 20260928)...
+  N = 1000 | Time (StructA / Naive): 0.067681 ms / 0.563062 ms | Hops (StructA / Naive): 2473 / 87896
+  N = 5000 | Time (StructA / Naive): 0.375663 ms / 10.6311 ms | Hops (StructA / Naive): 12348 / 2400034
+  N = 10000 | Time (StructA / Naive): 0.50062 ms / 29.654 ms | Hops (StructA / Naive): 24708 / 9686019
+  N = 20000 | Time (StructA / Naive): 0.550106 ms / 160.101 ms | Hops (StructA / Naive): 49600 / 38233635
+  N = 30000 | Time (StructA / Naive): 0.841378 ms / 468.861 ms | Hops (StructA / Naive): 74513 / 84534124
+  N = 50000 | Time (StructA / Naive): 1.44522 ms / -1 ms | Hops (StructA / Naive): 123704 / 0
+  N = 100000 | Time (StructA / Naive): 3.03506 ms / -1 ms | Hops (StructA / Naive): 248073 / 0
+>>> Micro-benchmark data written to results/raw/dsu_scaling.csv
+
+ Performance counter stats for './bin/bench_ops 20260928':
+
+       519,619,738      cpu_atom/L1-dcache-loads/                                               (1.00%)
+       434,186,305      cpu_core/L1-dcache-loads/                                               (99.00%)
+   <not supported>      cpu_atom/L1-dcache-load-misses/                                       
+       170,970,794      cpu_core/L1-dcache-load-misses/                                         (99.00%)
+           965,186      cpu_atom/LLC-loads/                                                     (1.00%)
+           275,458      cpu_core/LLC-loads/                                                     (99.00%)
+           356,501      cpu_atom/LLC-load-misses/                                               (1.00%)
+            26,001      cpu_core/LLC-load-misses/                                               (99.00%)
+
+       1.106632117 seconds time elapsed
+
+       1.098928000 seconds user
+       0.005975000 seconds sys
+
+

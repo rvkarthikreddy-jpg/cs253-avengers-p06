@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\title{\textbf{Derivation D4: Correctness of Multi-Source BFS Flood Fill as an Independent Oracle}}
+\author{\textbf{Chetkuri Krishna Prasad} (Roll No: 250041013) \\ Oracle Owner --- Team Avengers (Project 06)}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\section{Statement}
+\textit{A site is full exactly when it can be reached from the top row through open sites, so the flood fill is a correct oracle. Prove it.}
+
+\section{Definitions and Graph Formulation}
+Model the $L \times L$ lattice as an undirected graph $G = (V, E_{\text{open}})$:
+\begin{itemize}
+    \item $V = \{(r, c) \mid 0 \le r, c < L\}$.
+    \item Edge $((r_1, c_1), (r_2, c_2)) \in E_{\text{open}} \iff \text{both open and } |r_1 - r_2| + |c_1 - c_2| = 1$.
+    \item Source set $S = \{(0, c) \in V \mid (0, c) \text{ is open}\}$.
+    \item \textbf{Ground Truth Definition of Fullness:} A site $u \in V$ is full if and only if there exists a simple path in $G$ from some vertex $s \in S$ to $u$.
+    \item \textbf{Multi-Source BFS Flood Fill:} Initializes FIFO queue $Q \leftarrow S$, marks $S$ visited, and iteratively explores 4-orthogonal open neighbors until $Q = \emptyset$.
+\end{itemize}
+
+\section{Proof and Derivation}
+
+\begin{theorem}
+The set of vertices visited by the multi-source BFS flood fill, denoted $R \subseteq V$, equals the set of physically full sites: $R = \{u \in V \mid u \text{ is full}\}$.
+\end{theorem}
+\begin{proof}
+We prove set equality by showing bidirectional inclusion: $R \subseteq \text{Full}$ and $\text{Full} \subseteq R$.
+
+\textbf{Part 1: Soundness ($R \subseteq \text{Full}$)}
+We show that every vertex enqueued into $Q$ is full by induction on the enqueue step $k$:
+\begin{itemize}
+    \item \textbf{Base Case ($k=0$):} Vertices enqueued at step $0$ are precisely elements of $S$. Every open site in row $0$ is connected to row $0$ by a path of length $0$. Hence, all initial vertices are full.
+    \item \textbf{Inductive Step:} Suppose that after $k$ dequeue steps, all enqueued vertices are full. Let vertex $v$ be dequeued at step $k+1$, and let $w$ be an unvisited neighbor such that $(v, w) \in E_{\text{open}}$. By induction hypothesis, there exists an open path $\Pi = \langle s, \dots, v \rangle$ from some $s \in S$ to $v$. Appending edge $(v, w)$ yields a valid open path $\Pi' = \langle s, \dots, v, w \rangle$. Thus $w$ is full.
+\end{itemize}
+By induction, every visited vertex is full. Dry sites are never marked full.
+
+\textbf{Part 2: Completeness ($\text{Full} \subseteq R$)}
+Suppose $u \in V$ is full. Then there exists an open path $\Pi = \langle v_0, v_1, \dots, v_m \rangle$ with $v_0 \in S$ and $v_m = u$.
+We prove that $v_i \in R$ for all $0 \le i \le m$ by induction on $i$:
+\begin{itemize}
+    \item \textbf{Base Case ($i=0$):} $v_0 \in S$, so $v_0$ is enqueued during initialization ($v_0 \in R$).
+    \item \textbf{Inductive Step:} Assume $v_i \in R$. Then $v_i$ enters $Q$ and is eventually dequeued. When $v_i$ is dequeued, all adjacent open neighbors are inspected. Because $(v_i, v_{i+1}) \in E_{\text{open}}$, if $v_{i+1}$ has not been visited, it is marked visited and enqueued. In either case, $v_{i+1} \in R$.
+\end{itemize}
+By induction, $v_m = u \in R$. Thus $\text{Full} \subseteq R$.
+
+Combining both parts yields $R = \text{Full}$. The flood fill is a provably correct oracle.
+\end{proof}
+
+\section{Code Mapping}
+\begin{itemize}
+    \item \textbf{File:} \texttt{oracle/bfs\_oracle.cpp}
+    \item \textbf{Function:} \texttt{void BFSOracle::run\_flood\_fill() const}
+    \item \textbf{Usage:} Independent ground truth in \texttt{tests/differential\_test.cpp}.
+\end{itemize}
+
+\section{References}
+\begin{enumerate}
+    \item Tarjan, R. E. (1983). \textit{Data Structures and Network Algorithms}. SIAM.
+\end{enumerate}
+
+\end{document}

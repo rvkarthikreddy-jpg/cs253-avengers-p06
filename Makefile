@@ -28,3 +28,11 @@ test: bin/differential_test
 
 clean:
 	rm -rf bin/ *.o *.exe
+
+# --- Analyst Benchmark Targets ---
+bin/bench_ops: bench/bench_ops.cpp $(SRCS_A) $(SRCS_B)
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+bench: bin/bench_ops
+	./bin/bench_ops 20260928

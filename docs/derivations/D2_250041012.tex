@@ -1,0 +1,137 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{microtype}
+
+\title{\textbf{Derivation $D_2$: Worst-Case Find in Naive Linking and the Tarjan--van Leeuwen Amortized Bound for Path Compression Alone}}
+\author{\textbf{Cheepati Dheeraj Sree Ram} \\ Roll No: 250041012 \\ Structure B Owner, Team Avengers (Project 06)}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+\textit{``Naive linking has $\Theta(n)$ worst-case find; Tarjan--van Leeuwen theorem establishes $O(\log n)$ amortized bound for path compression alone.''}
+
+\section{Definitions and Notation}
+Let $V = \{0, 1, \dots, n-1\}$ be a universe of $n$ elements initialized as $n$ disjoint singleton sets. A disjoint-set forest models these partitions as directed rooted trees where each node $u \in V$ maintains an explicit parent reference $p[u] \in V$. A node $r$ is canonical if $p[r] = r$.
+\begin{itemize}
+    \item \textbf{Naive DSU ($\mathcal{D}_{\text{naive}}$):} Employs arbitrary (or asymmetric) linking on \texttt{unite($u, v$)}. Given canonical roots $r_u = \text{find}(u)$ and $r_v = \text{find}(v)$ with $r_u \neq r_v$, linking sets $p[r_u] \leftarrow r_v$ without rank or cardinality comparisons. Traversal in \texttt{find($u$)} follows parent pointers iteratively until $p[r] = r$ with zero pointer updates (no path compression).
+    \item \textbf{Compression-Only DSU ($\mathcal{D}_{\text{comp}}$):} Links arbitrary roots ($p[r_u] \leftarrow r_v$) on union, but \texttt{find($u$)} applies full two-pass path compression: every node $x$ visited along the traversal path from $u$ to $r_u$ has its parent directly rewritten to $p[x] \leftarrow r_u$.
+    \item \textbf{Cost Model:} The cost $T(\text{find}(u))$ is the number of edges traversed from $u$ to its canonical root.
+\end{itemize}
+
+\section{Mathematical Proof}
+
+\subsection{Part 1: $\Theta(n)$ Worst-Case Find Under Naive Linking}
+\begin{theorem}
+There exists an adversarial sequence of operations on $\mathcal{D}_{\text{naive}}$ such that an individual find operation requires $\Theta(n)$ time, and a sequence of $m$ operations requires $\Theta(m \cdot n)$ time ($\Theta(n^2)$ when $m = \Theta(n)$).
+\end{theorem}
+
+\begin{proof}
+Let $V = \{0, 1, \dots, n-1\}$. We execute the following sequence of $n-1$ consecutive union operations:
+\[
+\text{unite}(0, 1), \;\; \text{unite}(1, 2), \;\; \dots, \;\; \text{unite}(n-2, n-1)
+\]
+At step $k$ ($0 \le k \le n-2$), node $k$ is the canonical root of component $\{0, \dots, k\}$, and node $k+1$ is an isolated singleton root. The arbitrary linking policy sets $p[k] \leftarrow k+1$.
+
+By induction on $k$:
+\begin{itemize}
+    \item \textbf{Base Case ($k=0$):} $p[0] = 1$. The path from $0$ to root $1$ has length $1$.
+    \item \textbf{Inductive Hypothesis:} Assume after step $k-1$, nodes $0, 1, \dots, k$ form a linear directed path $0 \to 1 \to \dots \to k$.
+    \item \textbf{Inductive Step:} Step $k$ links root $k$ to root $k+1$, setting $p[k] = k+1$. Because no path compression occurs during naive linking, all preexisting edges $i \to i+1$ ($i < k$) remain intact. Thus, the structure extends to $0 \to 1 \to \dots \to k \to k+1$.
+\end{itemize}
+After $n-1$ unions, the component is a degenerate linear chain of height $n-1$, rooted at $n-1$.
+Now, consider issuing $m$ queries of the form $\text{find}(0)$. Because naive find executes zero path modifications, every single invocation of $\text{find}(0)$ traverses the exact sequence of edges:
+\[
+0 \to 1 \to 2 \to \dots \to n-1
+\]
+The edge traversal count for each query is precisely $n-1$. The total work across $m$ queries is:
+\[
+T(m, n) = \sum_{i=1}^m (n - 1) = m(n - 1) = \Theta(m \cdot n)
+\]
+For $m = n$, $T(n, n) = n^2 - n = \Theta(n^2)$. Hence, the single-operation worst-case cost is $\Theta(n)$, and the amortized bound is $\Omega(n)$ without compression or balancing.
+\end{proof}
+
+\subsection{Part 2: Tarjan--van Leeuwen $O(\log n)$ Amortized Bound for Path Compression Alone}
+When union by rank is discarded but full path compression is maintained, trees can reach depth up to $n-1$, but deep traversals compress long paths, amortizing future query costs.
+
+\begin{theorem}[Tarjan \& van Leeuwen, 1984]
+In a disjoint-set forest of $n$ elements using arbitrary linking and two-pass path compression, any sequence of $m$ find operations and at most $n-1$ union operations executes in at most $O(m \log n + n)$ time, giving an amortized cost of $O(\log n)$ per operation when $m \ge n$.
+\end{theorem}
+
+\begin{proof}[Proof Sketch via Potential Function Analysis]
+For any node $x \in V$, define $s(x)$ as the number of nodes in the subtree rooted at $x$. Define the rank-like valuation:
+\[
+r(x) = \lfloor \log_2 s(x) \rfloor \in [0, \lfloor \log_2 n \rfloor]
+\]
+Because tree sizes satisfy $1 \le s(x) \le n$, the valuation $r(x)$ is bounded: $0 \le r(x) \le \lfloor \log_2 n \rfloor$. Define the global potential function:
+\[
+\Phi = \sum_{x \in V} r(x)
+\]
+Since $0 \le \Phi \le n \lfloor \log_2 n \rfloor$, the net change in potential over any sequence cannot exceed $O(n \log n)$.
+
+Consider a find operation traversing path $v_0, v_1, \dots, v_k$, where $v_0$ is the query node, $v_k$ is the canonical root, and $v_{i+1} = p[v_i]$. Along this path, subtree sizes are strictly increasing:
+\[
+s(v_0) < s(v_1) < \dots < s(v_k) \implies r(v_0) \le r(v_1) \le \dots \le r(v_k)
+\]
+We classify each edge $(v_i, v_{i+1})$ along the traversal path into two categories:
+\begin{enumerate}
+    \item \textbf{Rank-Changing Steps:} Steps where $r(v_{i+1}) > r(v_i)$. Since $0 \le r(x) \le \log_2 n$, the path can contain at most $\lfloor \log_2 n \rfloor$ such steps.
+    \item \textbf{Rank-Preserving Steps:} Steps where $r(v_{i+1}) = r(v_i)$. Let there be $q$ such steps. 
+\end{enumerate}
+When path compression executes, every node $v_i$ ($i < k$) is reparented directly to root $v_k$:
+\[
+p[v_i] \leftarrow v_k
+\]
+For every rank-preserving node $v_i$, its new parent $v_k$ has strictly greater size: $s(v_k) \ge s(v_{i+1}) + s(v_i)$. If $s(v_{i+1}) \ge s(v_i)$, then $s(v_k) \ge 2 s(v_i)$, which increases the potential by at least $1$ upon subsequent evaluation, causing a potential drop of $\Delta \Phi \le -q/2$ during the compression phase.
+
+The amortized cost $\widehat{c}$ of the find query satisfies:
+\[
+\widehat{c} = c_{\text{actual}} + \Delta \Phi \le (\log_2 n + q) - q + O(1) \le O(\log n)
+\]
+Summing over $m$ finds and $n-1$ arbitrary unions (each union contributes at most $O(\log n)$ to potential), the total actual operational cost across all operations is:
+\[
+T(m, n) = O((m + n) \log n) = O(m \log n + n)
+\]
+Dividing across $m \ge n$ queries yields an amortized bound of $O(\log n)$ per find.
+\end{proof}
+
+\section{Code Mapping}
+The theoretical results proven above directly validate the Structure B ablation implementations:
+\begin{enumerate}
+    \item \textbf{Naive Degradation ($\Theta(n)$ find, $\Theta(n^2)$ total):} Verified in \texttt{src/structB/naive\_dsu.cpp}:
+    \begin{itemize}
+        \item \texttt{int NaiveDSU::find(int u)}: Traverses parent pointers iteratively with zero compression.
+        \item \texttt{bool NaiveDSU::unite(int u, int v)}: Arbitrarily links $p[r_u] \leftarrow r_v$.
+    \end{itemize}
+    This linear chain behavior is triggered deterministically by \texttt{adversary/adversarial\_generator.cpp} via the \texttt{--linear} flag, showing quadratic latency stalls in benchmark logs.
+    \item \textbf{Compression-Only Amortization ($O(\log n)$):} Implemented in \texttt{src/structB/compression\_only\_dsu.cpp}:
+    \begin{itemize}
+        \item \texttt{int CompressionOnlyDSU::find(int u)}: Executes the two-pass compression loop, reparenting all visited nodes to root $r_u$, preventing degenerate quadratic slowdown despite arbitrary linking in \texttt{CompressionOnlyDSU::unite}.
+    \end{itemize}
+\end{enumerate}
+
+\begin{thebibliography}{9}
+\bibitem{tarjan1984}
+R.~E. Tarjan and J.~van Leeuwen, 
+\emph{Worst-case analysis of several path compression algorithms}, 
+Journal of the ACM, 31(2):245--281, 1984.
+
+\bibitem{galler1964}
+B.~A. Galler and M.~J. Fischer, 
+\emph{An improved equivalence algorithm}, 
+Communications of the ACM, 7(5):301--303, 1964.
+
+\bibitem{clrs}
+T.~H. Cormen, C.~E. Leiserson, R.~L. Rivest, and C.~Stein, 
+\emph{Introduction to Algorithms}, 4th ed., 
+MIT Press, Cambridge, MA, 2022.
+\end{thebibliography}
+
+\end{document}
